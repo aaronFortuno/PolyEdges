@@ -146,9 +146,9 @@ input[type="checkbox"] {
 .info-box {
   background: var(--bg-input);
   border-radius: 8px;
-  padding: 12px;
-  font-size: 0.85rem;
-  line-height: 1.5;
+  padding: 10px;
+  font-size: 0.75rem;
+  line-height: 1.4;
   border-left: 3px solid var(--accent);
 }
 

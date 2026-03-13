@@ -59,20 +59,12 @@ function updateEulerInfo() {
   html += `${t('euler.formula', { value: info.eulerFormula })}<br>`;
   html += `${t('euler.oddCount', { count: info.oddCount })}<br>`;
 
-  // Euler (edges)
-  html += `<strong>${t('euler.header')}</strong><br>`;
   if (info.eulerCircuit) {
-    html += `<span class="euler-yes">${t('euler.circuit')}</span><br>`;
+    html += `<span class="euler-yes">${t('euler.circuit')}</span>`;
   } else if (info.eulerPath) {
-    html += `<span class="euler-yes">${t('euler.path')}</span><br>`;
+    html += `<span class="euler-yes">${t('euler.path')}</span>`;
   } else {
-    html += `<span class="euler-no">${t('euler.none')}</span><br>`;
-  }
-
-  // Hamilton (vertices)
-  html += `<strong>${t('hamilton.header')}</strong><br>`;
-  if (info.hamiltonianCircuit) {
-    html += `<span class="euler-yes">${t('hamilton.circuit')}</span>`;
+    html += `<span class="euler-no">${t('euler.none')}</span>`;
   }
 
   box.innerHTML = html;
