@@ -199,6 +199,53 @@ function buildCuttingShape(vertices, edges, radius, segments) {
   return result;
 }
 
+// --- Pin hole for thumbtack ---
+
+function buildPinHole(vertices) {
+  const RAD2DEG = 180 / Math.PI;
+  const PIN_RADIUS = 0.5;   // 1mm diameter
+  const PIN_LENGTH = 10;     // 10mm deep
+
+  // Find topmost vertex (max Y)
+  let topIdx = 0;
+  for (let i = 1; i < vertices.length; i++) {
+    if (vertices[i][1] > vertices[topIdx][1]) topIdx = i;
+  }
+  const v = vertices[topIdx];
+
+  // Direction from vertex toward center (0,0,0)
+  const dx = -v[0], dy = -v[1], dz = -v[2];
+  const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+  const nx = dx / len, ny = dy / len, nz = dz / len;
+
+  // Create cylinder along Z, then rotate to direction
+  let pin = ManifoldClass.cylinder(PIN_LENGTH, PIN_RADIUS, PIN_RADIUS, 16, true);
+
+  const horiz = Math.sqrt(nx * nx + nz * nz);
+  let rx, ry;
+  if (horiz < 0.0001) {
+    rx = ny > 0 ? -90 : 90;
+    ry = 0;
+  } else {
+    rx = -Math.asin(ny) * RAD2DEG;
+    ry = Math.atan2(nx, nz) * RAD2DEG;
+  }
+
+  const rotated = pin.rotate([rx, ry, 0]);
+  pin.delete();
+
+  // Position: start at vertex, extend toward center
+  // The cylinder is centered, so offset by half its length along direction
+  const mx = v[0] + nx * (PIN_LENGTH / 2);
+  const my = v[1] + ny * (PIN_LENGTH / 2);
+  const mz = v[2] + nz * (PIN_LENGTH / 2);
+
+  const translated = rotated.translate([mx, my, mz]);
+  rotated.delete();
+
+  return translated;
+}
+
 // --- Public API ---
 
 /**
@@ -208,35 +255,47 @@ function buildCuttingShape(vertices, edges, radius, segments) {
  * - edges: real polyhedron edge pairs [i,j]
  * - baseGeometry: ungrooved solid (for wireframe overlay reference)
  */
-export function buildGroovedSolid(solidType, _edges, size, grooveRadius, grooveSegments) {
+export function buildGroovedSolid(solidType, _edges, size, grooveRadius, grooveSegments, pinHole = false) {
   const baseGeom = createBaseThreeGeometry(solidType, size);
   const vertices = getVertices(baseGeom);
   const edges = detectEdges(vertices);
 
   console.log(`${solidType}: ${vertices.length} verts, ${edges.length} edges, radius=${grooveRadius}`);
 
-  // No grooves: return base solid
-  if (grooveRadius <= 0) {
+  // No grooves and no pin hole: return base solid
+  if (grooveRadius <= 0 && !pinHole) {
     baseGeom.computeVertexNormals();
     return { geometry: baseGeom, edges, baseGeometry: baseGeom };
   }
 
-  // CSG: solid minus cutting shape
-  const solid = threeGeomToManifold(baseGeom);
-  const cutter = buildCuttingShape(vertices, edges, grooveRadius, grooveSegments);
+  // CSG operations
+  let result = threeGeomToManifold(baseGeom);
 
-  const grooved = solid.subtract(cutter);
-  const groovedGeom = manifoldToThreeGeom(grooved);
+  // Subtract groove cutting shape
+  if (grooveRadius > 0) {
+    const cutter = buildCuttingShape(vertices, edges, grooveRadius, grooveSegments);
+    const afterGrooves = result.subtract(cutter);
+    result.delete();
+    cutter.delete();
+    result = afterGrooves;
+  }
 
-  // Cleanup Manifold objects
-  solid.delete();
-  cutter.delete();
-  grooved.delete();
+  // Subtract pin hole at top vertex
+  if (pinHole) {
+    const pin = buildPinHole(vertices);
+    const afterPin = result.subtract(pin);
+    result.delete();
+    pin.delete();
+    result = afterPin;
+  }
+
+  const resultGeom = manifoldToThreeGeom(result);
+  result.delete();
 
   // Keep base geometry for wireframe overlay (with normals)
   baseGeom.computeVertexNormals();
 
-  return { geometry: groovedGeom, edges, baseGeometry: baseGeom };
+  return { geometry: resultGeom, edges, baseGeometry: baseGeom };
 }
 
 // --- Vector math ---

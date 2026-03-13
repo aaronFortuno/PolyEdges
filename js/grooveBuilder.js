@@ -10,13 +10,13 @@ export function rebuildMesh(params) {
   if (!poly) throw new Error(`Unknown solid type: ${params.solidType}`);
 
   const grooveRadius = params.grooveDiameter / 2;
-  const segments = params.grooveSquare ? 4 : 16;
 
   return buildGroovedSolid(
     params.solidType,
     poly.edges,
     params.size,
     grooveRadius,
-    segments
+    16,
+    params.pinHole
   );
 }

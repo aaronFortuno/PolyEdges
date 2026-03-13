@@ -26,7 +26,7 @@ function readParams() {
     solidType: $('solidType').value,
     size: parseFloat($('size').value),
     grooveDiameter: parseFloat($('grooveDiameter').value),
-    grooveSquare: $('grooveSquare').checked
+    pinHole: $('pinHole').checked
   };
 }
 
@@ -65,8 +65,7 @@ async function rebuild() {
   try {
     const { geometry, edges, baseGeometry } = rebuildMesh(params);
     const grooveRadius = params.grooveDiameter / 2;
-    const segments = params.grooveSquare ? 4 : 16;
-    updateMesh(geometry, edges, baseGeometry, grooveRadius, segments);
+    updateMesh(geometry, edges, baseGeometry, grooveRadius, 16);
     setStatus(`${params.solidType} — ${params.size} mm`);
   } catch (err) {
     console.error('Error building solid:', err);
@@ -99,7 +98,7 @@ async function init() {
       setTimeout(resetCamera, 300);
     });
 
-    $('grooveSquare').addEventListener('change', scheduleRebuild);
+    $('pinHole').addEventListener('change', scheduleRebuild);
 
     ['size', 'grooveDiameter'].forEach(id => {
       $(id).addEventListener('input', () => {
@@ -116,6 +115,18 @@ async function init() {
 
     $('wireframe').addEventListener('change', (e) => {
       setWireframe(e.target.checked);
+    });
+
+    // Changelog modal
+    const changelogModal = $('changelogModal');
+    $('changelogLink').addEventListener('click', () => {
+      changelogModal.classList.remove('hidden');
+    });
+    $('changelogClose').addEventListener('click', () => {
+      changelogModal.classList.add('hidden');
+    });
+    changelogModal.addEventListener('click', (e) => {
+      if (e.target === changelogModal) changelogModal.classList.add('hidden');
     });
 
     updateSliderLabels();
