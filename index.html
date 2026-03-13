@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PolyEdges — Sòlids amb ranures per camins eulerins</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <aside id="sidebar">
+    <h1>PolyEdges</h1>
+    <p class="subtitle">Generador de sòlids amb ranures per explorar camins eulerins</p>
+
+    <div class="control-group">
+      <label for="solidType">Tipus de sòlid</label>
+      <select id="solidType">
+        <option value="tetrahedron">Tetraedre (4V, 6A)</option>
+        <option value="cube" selected>Cub (8V, 12A)</option>
+        <option value="octahedron">Octaedre (6V, 12A)</option>
+        <option value="dodecahedron">Dodecaedre (20V, 30A)</option>
+        <option value="icosahedron">Icosaedre (12V, 30A)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="size">Mida <span id="sizeVal">50</span> mm</label>
+      <input type="range" id="size" min="10" max="100" value="50" step="1">
+    </div>
+
+    <div class="control-group">
+      <label for="grooveDiameter">Diàmetre ranura <span id="grooveDiameterVal">3.0</span> mm</label>
+      <input type="range" id="grooveDiameter" min="0.5" max="8" value="3" step="0.1">
+    </div>
+
+    <div class="control-group">
+      <label for="grooveSegments">Segments cilindre <span id="grooveSegmentsVal">12</span></label>
+      <input type="range" id="grooveSegments" min="6" max="24" value="12" step="1">
+    </div>
+
+    <div class="control-group">
+      <label>
+        <input type="checkbox" id="wireframe"> Mostrar wireframe
+      </label>
+    </div>
+
+    <div class="control-group info-box" id="eulerInfo"></div>
+
+    <button id="exportBtn" class="btn-primary">Exportar STL</button>
+
+    <div id="status" class="status">Inicialitzant...</div>
+  </aside>
+
+  <main id="canvas-container">
+    <div id="spinner" class="spinner hidden">
+      <div class="spinner-ring"></div>
+      <span>Calculant CSG...</span>
+    </div>
+    <canvas id="threeCanvas"></canvas>
+  </main>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
