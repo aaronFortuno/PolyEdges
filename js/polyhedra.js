@@ -189,15 +189,27 @@ function orientFlatOnFace(vertices, edges) {
 
   if (faceNormals.length === 0) return vertices;
 
-  // Find face normal most aligned with -Y (pointing down)
+  // For each face normal, compute support count (= number of face sides)
+  const facesWithSize = faceNormals.map(n => {
+    const projections = vertices.map(p => vecDot(p, n));
+    const maxProj = Math.max(...projections);
+    const supportCount = projections.filter(d => Math.abs(d - maxProj) < 0.001).length;
+    return { normal: n, size: supportCount };
+  });
+
+  // Find the largest face type
+  const maxFaceSize = Math.max(...facesWithSize.map(f => f.size));
+
+  // Among faces with the largest size, find the one most aligned with -Y
   const target = [0, -1, 0];
-  let bestNormal = faceNormals[0];
+  let bestNormal = facesWithSize[0].normal;
   let bestScore = -Infinity;
-  for (const n of faceNormals) {
-    const score = -n[1];
+  for (const f of facesWithSize) {
+    if (f.size < maxFaceSize) continue;
+    const score = -f.normal[1];
     if (score > bestScore) {
       bestScore = score;
-      bestNormal = n;
+      bestNormal = f.normal;
     }
   }
 

@@ -31,36 +31,13 @@ function createBaseThreeGeometry(solidType, size) {
   let geom;
   const poly = POLYHEDRA[solidType];
 
-  if (poly && poly.group === 'platonic') {
-    // Use Three.js built-in geometries for Platonic solids (cleaner meshes)
-    switch (solidType) {
-      case 'tetrahedron':
-        geom = new THREE.TetrahedronGeometry(size, 0);
-        break;
-      case 'cube': {
-        const side = size * 2 / Math.sqrt(3);
-        geom = new THREE.BoxGeometry(side, side, side);
-        break;
-      }
-      case 'octahedron':
-        geom = new THREE.OctahedronGeometry(size, 0);
-        break;
-      case 'dodecahedron':
-        geom = new THREE.DodecahedronGeometry(size, 0);
-        break;
-      case 'icosahedron':
-        geom = new THREE.IcosahedronGeometry(size, 0);
-        break;
-    }
-  } else if (poly) {
-    // Archimedean solids: ConvexGeometry from vertex data
-    const points = poly.vertices.map(v =>
-      new THREE.Vector3(v[0] * size, v[1] * size, v[2] * size)
-    );
-    geom = new ConvexGeometry(points);
-  } else {
-    throw new Error(`Unknown solid type: ${solidType}`);
-  }
+  if (!poly) throw new Error(`Unknown solid type: ${solidType}`);
+
+  // Use ConvexGeometry for all solids — uses our pre-oriented vertices
+  const points = poly.vertices.map(v =>
+    new THREE.Vector3(v[0] * size, v[1] * size, v[2] * size)
+  );
+  geom = new ConvexGeometry(points);
 
   geom.deleteAttribute('normal');
   if (geom.hasAttribute('uv')) geom.deleteAttribute('uv');
