@@ -6,6 +6,9 @@ export function exportSTL(geometry, filename) {
 
   const exporter = new STLExporter();
   const mesh = new THREE.Mesh(geometry);
+  // Convert Y-up (Three.js) to Z-up (STL/slicer convention)
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.updateMatrixWorld(true);
   const buffer = exporter.parse(mesh, { binary: true });
 
   const blob = new Blob([buffer], { type: 'application/octet-stream' });
