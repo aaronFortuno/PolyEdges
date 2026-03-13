@@ -401,6 +401,12 @@ input[type="checkbox"] {
   to { transform: rotate(360deg); }
 }
 
+/* --- ln-tip-jar --- */
+
+ln-tip-jar {
+  z-index: 50;
+}
+
 @media (max-width: 768px) {
   body {
     flex-direction: column;

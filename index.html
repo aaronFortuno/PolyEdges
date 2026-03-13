@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PolyEdges — Sòlids amb ranures per camins eulerians</title>
+  <title>PolyEdges — Sòlids amb ranures per camins d'Euler i Hamilton</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="css/style.css">
   <script type="importmap">
@@ -18,7 +18,7 @@
 <body>
   <aside id="sidebar">
     <h1 data-i18n="app.title">PolyEdges</h1>
-    <p class="subtitle" data-i18n="app.subtitle">Generador de sòlids amb ranures per explorar camins eulerians</p>
+    <p class="subtitle" data-i18n="app.subtitle">Generador de sòlids amb ranures per explorar camins d'Euler i Hamilton</p>
 
     <div class="control-group">
       <label for="solidType" data-i18n="label.solidType">Tipus de sòlid</label>
@@ -91,7 +91,7 @@
         </div>
         <button id="themeBtn" class="icon-btn" aria-label="Toggle theme">&#9790;</button>
       </div>
-      <a id="changelogLink" class="changelog-link">v0.2.0</a>
+      <a id="changelogLink" class="changelog-link">v0.2.1</a>
       <button id="helpBtn" class="icon-btn help-btn" aria-label="Help">?</button>
     </div>
   </aside>
@@ -109,6 +109,12 @@
       <button class="modal-close" data-modal="changelogModal">&times;</button>
       <h2 data-i18n="changelog.title">Historial de canvis</h2>
       <div class="modal-body">
+        <h3>v0.2.1</h3>
+        <ul>
+          <li>Anàlisi de camins de Hamilton (vèrtexs)</li>
+          <li>Traducció dels noms de sòlids al selector</li>
+          <li>README, LICENSE GPL v3</li>
+        </ul>
         <h3>v0.2.0</h3>
         <ul>
           <li>13 sòlids arquimedians</li>

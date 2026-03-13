@@ -1,8 +1,8 @@
-# PolyEdges — Generador de sòlids amb ranures per explorar camins eulerians
+# PolyEdges — Generador de sòlids amb ranures per explorar camins d'Euler i Hamilton
 
 [![Llicència: GPL v3](https://img.shields.io/badge/Llicència-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-**PolyEdges** és una eina educativa interactiva que genera models STL de sòlids geomètrics (platònics i arquimedians) amb ranures al llarg de cada aresta. Els estudiants passen un cordill per les ranures per verificar experimentalment les propietats dels camins i circuits eulerians.
+**PolyEdges** és una eina educativa interactiva que genera models STL de sòlids geomètrics (platònics i arquimedians) amb ranures al llarg de cada aresta. Els estudiants passen un cordill per les ranures per verificar experimentalment les propietats dels camins d'Euler (arestes) i Hamilton (vèrtexs).
 
 <!-- CAPTURA DE PANTALLA: afegir una imatge de l'aplicació aquí -->
 <!-- ![Captura de PolyEdges](screenshot.png) -->
@@ -11,7 +11,7 @@
 
 - Genera models STL de tots els **5 sòlids platònics** i els **13 sòlids arquimedians**
 - **Ranures** al llarg de cada aresta perquè els estudiants hi puguin passar un cordill
-- **Anàlisi euleriana** automàtica: indica si el sòlid admet camí o circuit d'Euler
+- **Anàlisi euleriana i hamiltoniana** automàtica: indica si el sòlid admet camí/circuit d'Euler (arestes) i de Hamilton (vèrtexs)
 - **Estimació de la longitud del cordill** necessari
 - **Forat per xinxeta** opcional per fixar el sòlid a un tauler
 - Exportació directa a **STL** per a impressió 3D
@@ -44,11 +44,11 @@ Distribuït sota la **Llicència Pública General GNU v3.0**. Vegeu el fitxer [L
 
 ---
 
-# PolyEdges — Solid generator with grooves to explore Eulerian paths
+# PolyEdges — Solid generator with grooves to explore Euler and Hamilton paths
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-**PolyEdges** is an interactive educational tool that generates STL models of geometric solids (Platonic and Archimedean) with grooves running along each edge. Students thread cord through the grooves to experimentally verify the properties of Eulerian paths and circuits.
+**PolyEdges** is an interactive educational tool that generates STL models of geometric solids (Platonic and Archimedean) with grooves running along each edge. Students thread cord through the grooves to experimentally verify the properties of Euler paths (edges) and Hamilton paths (vertices).
 
 <!-- SCREENSHOT: add an image of the application here -->
 <!-- ![PolyEdges screenshot](screenshot.png) -->
@@ -57,7 +57,7 @@ Distribuït sota la **Llicència Pública General GNU v3.0**. Vegeu el fitxer [L
 
 - Generates STL models of all **5 Platonic solids** and all **13 Archimedean solids**
 - **Grooves** along every edge so students can thread cord through them
-- Automatic **Eulerian analysis**: indicates whether the solid supports an Euler path or circuit
+- Automatic **Eulerian and Hamiltonian analysis**: indicates whether the solid supports an Euler path/circuit (edges) and Hamilton circuit (vertices)
 - **Cord length estimate** for the required amount of cord
 - Optional **pin hole** to attach the solid to a board with a thumbtack
 - One-click **STL export** for 3D printing

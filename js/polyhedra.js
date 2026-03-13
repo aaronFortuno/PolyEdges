@@ -274,11 +274,11 @@ export function getTotalEdgeLength(polyKey, size) {
   return total * size;
 }
 
-// --- Euler path analysis ---
+// --- Graph path analysis (Euler & Hamilton) ---
 
 export function analyzeEuler(polyKey) {
   const poly = POLYHEDRA[polyKey];
-  if (!poly) return { V: 0, E: 0, F: 0, degree: 0, degrees: [], isUniformDegree: true, oddCount: 0, eulerPath: false, eulerCircuit: false, eulerFormula: 0 };
+  if (!poly) return { V: 0, E: 0, F: 0, degree: 0, degrees: [], isUniformDegree: true, oddCount: 0, eulerPath: false, eulerCircuit: false, hamiltonianCircuit: false, eulerFormula: 0 };
 
   const V = poly.vertices.length;
   const E = poly.edges.length;
@@ -301,6 +301,8 @@ export function analyzeEuler(polyKey) {
     oddCount,
     eulerPath: oddCount === 0 || oddCount === 2,
     eulerCircuit: oddCount === 0,
+    // All Platonic and Archimedean solids have Hamiltonian circuits
+    hamiltonianCircuit: true,
     eulerFormula: V - E + F
   };
 }
