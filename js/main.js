@@ -1,4 +1,4 @@
-import { initScene, updateMesh, setWireframe, getCurrentGeometry } from './scene.js';
+import { initScene, updateMesh, setWireframe, getCurrentGeometry, resetCamera } from './scene.js';
 import { initManifold } from './manifoldBridge.js';
 import { rebuildMesh } from './grooveBuilder.js';
 import { analyzeEuler } from './polyhedra.js';
@@ -26,14 +26,13 @@ function readParams() {
     solidType: $('solidType').value,
     size: parseFloat($('size').value),
     grooveDiameter: parseFloat($('grooveDiameter').value),
-    grooveSegments: parseInt($('grooveSegments').value)
+    grooveSquare: $('grooveSquare').checked
   };
 }
 
 function updateSliderLabels() {
   $('sizeVal').textContent = $('size').value;
   $('grooveDiameterVal').textContent = parseFloat($('grooveDiameter').value).toFixed(1);
-  $('grooveSegmentsVal').textContent = $('grooveSegments').value;
 }
 
 function updateEulerInfo() {
@@ -58,14 +57,16 @@ function updateEulerInfo() {
 
 async function rebuild() {
   showSpinner(true);
-  setStatus('Generant sòlid...');
+  const params = readParams();
+  setStatus(params.grooveDiameter > 0 ? 'Calculant CSG...' : 'Generant sòlid...');
 
   await new Promise(r => setTimeout(r, 30));
 
   try {
-    const params = readParams();
-    const geometry = rebuildMesh(params);
-    updateMesh(geometry);
+    const { geometry, edges, baseGeometry } = rebuildMesh(params);
+    const grooveRadius = params.grooveDiameter / 2;
+    const segments = params.grooveSquare ? 4 : 16;
+    updateMesh(geometry, edges, baseGeometry, grooveRadius, segments);
     setStatus(`${params.solidType} — ${params.size} mm`);
   } catch (err) {
     console.error('Error building solid:', err);
@@ -75,7 +76,6 @@ async function rebuild() {
   }
 }
 
-// Debounced rebuild: waits 200ms after last change before rebuilding
 function scheduleRebuild() {
   if (rebuildTimeout) clearTimeout(rebuildTimeout);
   rebuildTimeout = setTimeout(rebuild, 200);
@@ -95,28 +95,29 @@ async function init() {
     $('solidType').addEventListener('change', () => {
       updateEulerInfo();
       scheduleRebuild();
+      // Reset camera when changing solid type
+      setTimeout(resetCamera, 300);
     });
 
-    ['size', 'grooveDiameter', 'grooveSegments'].forEach(id => {
+    $('grooveSquare').addEventListener('change', scheduleRebuild);
+
+    ['size', 'grooveDiameter'].forEach(id => {
       $(id).addEventListener('input', () => {
         updateSliderLabels();
         scheduleRebuild();
       });
     });
 
-    // Export button
     exportBtn.addEventListener('click', () => {
       const params = readParams();
       const geom = getCurrentGeometry();
       exportSTL(geom, `${params.solidType}-ranures.stl`);
     });
 
-    // Wireframe toggle
     $('wireframe').addEventListener('change', (e) => {
       setWireframe(e.target.checked);
     });
 
-    // Initial state
     updateSliderLabels();
     updateEulerInfo();
     await rebuild();

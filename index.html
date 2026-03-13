@@ -38,12 +38,13 @@
 
     <div class="control-group">
       <label for="grooveDiameter">Diàmetre ranura <span id="grooveDiameterVal">3.0</span> mm</label>
-      <input type="range" id="grooveDiameter" min="0.5" max="8" value="3" step="0.1">
+      <input type="range" id="grooveDiameter" min="0" max="8" value="3" step="0.1">
     </div>
 
     <div class="control-group">
-      <label for="grooveSegments">Segments cilindre <span id="grooveSegmentsVal">12</span></label>
-      <input type="range" id="grooveSegments" min="6" max="24" value="12" step="1">
+      <label>
+        <input type="checkbox" id="grooveSquare"> Ranura recta
+      </label>
     </div>
 
     <div class="control-group">
@@ -57,6 +58,16 @@
     <button id="exportBtn" class="btn-primary">Exportar STL</button>
 
     <div id="status" class="status">Inicialitzant...</div>
+
+    <div class="changelog">
+      <strong>v0.1.2</strong>
+      <ul>
+        <li>5 sòlids platònics amb preview 3D</li>
+        <li>Ranures CSG (corba/recta) al llarg de les arestes</li>
+        <li>Anàlisi de camins eulerins</li>
+        <li>Export STL per impressió 3D</li>
+      </ul>
+    </div>
   </aside>
 
   <main id="canvas-container">
