@@ -1,7 +1,7 @@
 import { initScene, updateMesh, setWireframe, getCurrentGeometry, resetCamera, setBackgroundColor } from './scene.js';
 import { initManifold } from './manifoldBridge.js';
 import { rebuildMesh } from './grooveBuilder.js';
-import { analyzeEuler, getTotalEdgeLength } from './polyhedra.js';
+import { analyzeEuler, getTotalEdgeLength, getBoundingDiameter } from './polyhedra.js';
 import { exportSTL } from './exporter.js';
 import { t, setLang, getLang, applyTranslations, LANGUAGES } from './i18n.js';
 
@@ -34,14 +34,16 @@ function readParams() {
 function updateSliderLabels() {
   $('sizeVal').textContent = $('size').value;
   $('grooveDiameterVal').textContent = parseFloat($('grooveDiameter').value).toFixed(1);
-  updateCordLength();
+  updateSizeInfo();
 }
 
-function updateCordLength() {
+function updateSizeInfo() {
   const solidType = $('solidType').value;
   const size = parseFloat($('size').value);
   const totalLen = getTotalEdgeLength(solidType, size);
+  const diameter = getBoundingDiameter(solidType, size);
   $('cordLength').textContent = t('cord.length', { length: Math.round(totalLen) });
+  $('boundingSize').textContent = t('bounding.diameter', { diameter: Math.round(diameter) });
 }
 
 function updateEulerInfo() {
@@ -187,7 +189,7 @@ async function init() {
     // Controls
     $('solidType').addEventListener('change', () => {
       updateEulerInfo();
-      updateCordLength();
+      updateSizeInfo();
       scheduleRebuild();
       setTimeout(resetCamera, 300);
     });
@@ -221,7 +223,7 @@ async function init() {
     // Re-render dynamic content on language change
     window.addEventListener('langchange', () => {
       updateEulerInfo();
-      updateCordLength();
+      updateSizeInfo();
     });
 
     // Apply initial state

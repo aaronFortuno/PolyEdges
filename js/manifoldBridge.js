@@ -33,9 +33,10 @@ function createBaseThreeGeometry(solidType, size) {
 
   if (!poly) throw new Error(`Unknown solid type: ${solidType}`);
 
-  // Use ConvexGeometry for all solids — uses our pre-oriented vertices
+  // Scale so that size = edge length in mm (not circumradius)
+  const scale = size / poly.edgeLength;
   const points = poly.vertices.map(v =>
-    new THREE.Vector3(v[0] * size, v[1] * size, v[2] * size)
+    new THREE.Vector3(v[0] * scale, v[1] * scale, v[2] * scale)
   );
   geom = new ConvexGeometry(points);
 
@@ -191,49 +192,52 @@ function buildCuttingShape(vertices, edges, radius, segments) {
 
 // --- Pin hole for thumbtack ---
 
-function buildPinHole(vertices) {
+function buildPinHoles(vertices) {
   const RAD2DEG = 180 / Math.PI;
   const PIN_RADIUS = 0.5;   // 1mm diameter
   const PIN_LENGTH = 10;     // 10mm deep
+  const parts = [];
 
-  // Find topmost vertex (max Y)
-  let topIdx = 0;
-  for (let i = 1; i < vertices.length; i++) {
-    if (vertices[i][1] > vertices[topIdx][1]) topIdx = i;
+  for (const v of vertices) {
+    // Direction from vertex toward center (0,0,0)
+    const dx = -v[0], dy = -v[1], dz = -v[2];
+    const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    const nx = dx / len, ny = dy / len, nz = dz / len;
+
+    let pin = ManifoldClass.cylinder(PIN_LENGTH, PIN_RADIUS, PIN_RADIUS, 16, true);
+
+    const horiz = Math.sqrt(nx * nx + nz * nz);
+    let rx, ry;
+    if (horiz < 0.0001) {
+      rx = ny > 0 ? -90 : 90;
+      ry = 0;
+    } else {
+      rx = -Math.asin(ny) * RAD2DEG;
+      ry = Math.atan2(nx, nz) * RAD2DEG;
+    }
+
+    const rotated = pin.rotate([rx, ry, 0]);
+    pin.delete();
+
+    const mx = v[0] + nx * (PIN_LENGTH / 2);
+    const my = v[1] + ny * (PIN_LENGTH / 2);
+    const mz = v[2] + nz * (PIN_LENGTH / 2);
+
+    const translated = rotated.translate([mx, my, mz]);
+    rotated.delete();
+    parts.push(translated);
   }
-  const v = vertices[topIdx];
 
-  // Direction from vertex toward center (0,0,0)
-  const dx = -v[0], dy = -v[1], dz = -v[2];
-  const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
-  const nx = dx / len, ny = dy / len, nz = dz / len;
-
-  // Create cylinder along Z, then rotate to direction
-  let pin = ManifoldClass.cylinder(PIN_LENGTH, PIN_RADIUS, PIN_RADIUS, 16, true);
-
-  const horiz = Math.sqrt(nx * nx + nz * nz);
-  let rx, ry;
-  if (horiz < 0.0001) {
-    rx = ny > 0 ? -90 : 90;
-    ry = 0;
-  } else {
-    rx = -Math.asin(ny) * RAD2DEG;
-    ry = Math.atan2(nx, nz) * RAD2DEG;
+  // Union all pin holes
+  let result = parts[0];
+  for (let k = 1; k < parts.length; k++) {
+    const merged = result.add(parts[k]);
+    result.delete();
+    parts[k].delete();
+    result = merged;
   }
 
-  const rotated = pin.rotate([rx, ry, 0]);
-  pin.delete();
-
-  // Position: start at vertex, extend toward center
-  // The cylinder is centered, so offset by half its length along direction
-  const mx = v[0] + nx * (PIN_LENGTH / 2);
-  const my = v[1] + ny * (PIN_LENGTH / 2);
-  const mz = v[2] + nz * (PIN_LENGTH / 2);
-
-  const translated = rotated.translate([mx, my, mz]);
-  rotated.delete();
-
-  return translated;
+  return result;
 }
 
 // --- Public API ---
@@ -270,9 +274,9 @@ export function buildGroovedSolid(solidType, _edges, size, grooveRadius, grooveS
     result = afterGrooves;
   }
 
-  // Subtract pin hole at top vertex
+  // Subtract pin holes at all vertices
   if (pinHole) {
-    const pin = buildPinHole(vertices);
+    const pin = buildPinHoles(vertices);
     const afterPin = result.subtract(pin);
     result.delete();
     pin.delete();

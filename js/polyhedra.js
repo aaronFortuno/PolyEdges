@@ -246,11 +246,23 @@ function makeSolid(verts, numFaces, group) {
   const el = getEdgeLength(nv);
   const edges = buildEdges(nv, el);
   const oriented = orientFlatOnFace(nv, edges);
+
+  // Precompute max vertex-to-vertex distance (for bounding diameter)
+  let maxSpan = 0;
+  for (let i = 0; i < oriented.length; i++) {
+    for (let j = i + 1; j < oriented.length; j++) {
+      const d = vecDist(oriented[i], oriented[j]);
+      if (d > maxSpan) maxSpan = d;
+    }
+  }
+
   return {
     group,
     vertices: oriented,
     edges,
-    numFaces
+    numFaces,
+    edgeLength: el,  // edge length at unit circumradius
+    maxSpan           // max vertex-to-vertex distance at unit circumradius
   };
 }
 
@@ -376,18 +388,20 @@ export const POLYHEDRA = {
   snubDodecahedron: makeSolid(snubDodecaVerts, 92, 'archimedean'),
 };
 
-// --- Cord length calculation ---
+// --- Measurements (size = edge length in mm) ---
 
 export function getTotalEdgeLength(polyKey, size) {
   const poly = POLYHEDRA[polyKey];
   if (!poly) return 0;
-  let total = 0;
-  for (const [i, j] of poly.edges) {
-    const a = poly.vertices[i], b = poly.vertices[j];
-    total += vecDist(a, b);
-  }
-  // Vertices are normalized to unit circumradius, scale by size
-  return total * size;
+  // All edges are uniform length = size mm
+  return poly.edges.length * size;
+}
+
+export function getBoundingDiameter(polyKey, size) {
+  const poly = POLYHEDRA[polyKey];
+  if (!poly) return 0;
+  // Scale from normalized coords: size = edge length → scale = size / edgeLength
+  return poly.maxSpan * (size / poly.edgeLength);
 }
 
 // --- Graph path analysis (Euler & Hamilton) ---

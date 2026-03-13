@@ -49,10 +49,14 @@
     </div>
 
     <div class="control-group">
-      <label for="size" class="label-with-info">
-        <span><span data-i18n="label.size">Mida</span> <span id="sizeVal">50</span> mm</span>
-        <span id="cordLength" class="cord-length"></span>
-      </label>
+      <label for="size" data-i18n="label.edgeLength">Longitud aresta</label>
+      <div class="slider-info">
+        <span><span id="sizeVal">50</span> mm</span>
+        <span class="size-details">
+          <span id="cordLength" class="cord-length"></span>
+          <span id="boundingSize" class="cord-length"></span>
+        </span>
+      </div>
       <input type="range" id="size" min="10" max="100" value="50" step="1">
     </div>
 
@@ -63,7 +67,7 @@
 
     <div class="control-group">
       <label>
-        <input type="checkbox" id="pinHole"> <span data-i18n="label.pinHole">Forat inicial (xinxeta)</span>
+        <input type="checkbox" id="pinHole"> <span data-i18n="label.pinHole">Vèrtexs foradats (1 mm Ø)</span>
       </label>
     </div>
 
@@ -91,7 +95,7 @@
         </div>
         <button id="themeBtn" class="icon-btn" aria-label="Toggle theme">&#9790;</button>
       </div>
-      <a id="changelogLink" class="changelog-link">v0.2.1</a>
+      <a id="changelogLink" class="changelog-link">v0.2.2</a>
       <button id="helpBtn" class="icon-btn help-btn" aria-label="Help">?</button>
     </div>
   </aside>
@@ -109,6 +113,12 @@
       <button class="modal-close" data-modal="changelogModal">&times;</button>
       <h2 data-i18n="changelog.title">Historial de canvis</h2>
       <div class="modal-body">
+        <h3>v0.2.2</h3>
+        <ul>
+          <li>Slider «Longitud aresta» en mm (abans circumradi)</li>
+          <li>Diàmetre aproximat (Ø) de la figura</li>
+          <li>Vèrtexs foradats: tots els vèrtexs amb forat 1 mm per xinxetes/pals (estil joc Icosià)</li>
+        </ul>
         <h3>v0.2.1</h3>
         <ul>
           <li>Orientació automàtica: cara plana a la base per impressió 3D</li>
