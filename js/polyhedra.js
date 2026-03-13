@@ -127,13 +127,117 @@ function chiralOddPermsSigns(a, b, c) {
   return result;
 }
 
+// --- Orientation: ensure a face is flat on the bottom for 3D printing ---
+
+function vecCross(a, b) {
+  return [a[1]*b[2] - a[2]*b[1], a[2]*b[0] - a[0]*b[2], a[0]*b[1] - a[1]*b[0]];
+}
+
+function vecDot(a, b) {
+  return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+}
+
+function vecNorm(v) {
+  const l = Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+  return l > 1e-12 ? [v[0]/l, v[1]/l, v[2]/l] : [0, 0, 0];
+}
+
+function orientFlatOnFace(vertices, edges) {
+  // Build adjacency list
+  const adj = vertices.map(() => []);
+  for (const [i, j] of edges) {
+    adj[i].push(j);
+    adj[j].push(i);
+  }
+
+  // Find face normals: for each vertex, cross-product pairs of edge vectors,
+  // then verify it's a real face normal (>= 3 coplanar vertices at max projection)
+  const faceNormals = [];
+  const seen = new Set();
+
+  for (let v = 0; v < vertices.length; v++) {
+    const vert = vertices[v];
+    const nbrs = adj[v];
+    for (let i = 0; i < nbrs.length; i++) {
+      for (let j = i + 1; j < nbrs.length; j++) {
+        const vi = vertices[nbrs[i]], vj = vertices[nbrs[j]];
+        const e1 = [vi[0]-vert[0], vi[1]-vert[1], vi[2]-vert[2]];
+        const e2 = [vj[0]-vert[0], vj[1]-vert[1], vj[2]-vert[2]];
+        let n = vecCross(e1, e2);
+        const len = Math.sqrt(vecDot(n, n));
+        if (len < 1e-10) continue;
+        n = [n[0]/len, n[1]/len, n[2]/len];
+
+        // Ensure outward pointing (solids centered at origin)
+        if (vecDot(n, vert) < 0) n = [-n[0], -n[1], -n[2]];
+
+        // Verify: support set should have >= 3 vertices (a real face)
+        const projections = vertices.map(p => vecDot(p, n));
+        const maxProj = Math.max(...projections);
+        const supportCount = projections.filter(d => Math.abs(d - maxProj) < 0.001).length;
+
+        if (supportCount >= 3) {
+          const key = n.map(x => Math.round(x * 10000)).join(',');
+          if (!seen.has(key)) {
+            seen.add(key);
+            faceNormals.push(n);
+          }
+        }
+      }
+    }
+  }
+
+  if (faceNormals.length === 0) return vertices;
+
+  // Find face normal most aligned with -Y (pointing down)
+  const target = [0, -1, 0];
+  let bestNormal = faceNormals[0];
+  let bestScore = -Infinity;
+  for (const n of faceNormals) {
+    const score = -n[1];
+    if (score > bestScore) {
+      bestScore = score;
+      bestNormal = n;
+    }
+  }
+
+  // Rotate bestNormal to [0, -1, 0] using Rodrigues' formula
+  const cosAngle = vecDot(bestNormal, target);
+  if (cosAngle > 0.9999) return vertices; // already oriented
+
+  let axis, angle;
+  if (cosAngle < -0.9999) {
+    // ~180° rotation — pick any perpendicular axis
+    axis = Math.abs(bestNormal[0]) < 0.9 ? [1, 0, 0] : [0, 0, 1];
+    const d = vecDot(axis, bestNormal);
+    axis = vecNorm([axis[0]-d*bestNormal[0], axis[1]-d*bestNormal[1], axis[2]-d*bestNormal[2]]);
+    angle = Math.PI;
+  } else {
+    axis = vecNorm(vecCross(bestNormal, target));
+    angle = Math.acos(Math.max(-1, Math.min(1, cosAngle)));
+  }
+
+  const cosA = Math.cos(angle), sinA = Math.sin(angle);
+  return vertices.map(v => {
+    const vdk = vecDot(v, axis);
+    const kcv = vecCross(axis, v);
+    return [
+      v[0]*cosA + kcv[0]*sinA + axis[0]*vdk*(1-cosA),
+      v[1]*cosA + kcv[1]*sinA + axis[1]*vdk*(1-cosA),
+      v[2]*cosA + kcv[2]*sinA + axis[2]*vdk*(1-cosA)
+    ];
+  });
+}
+
 function makeSolid(verts, numFaces, group) {
   const nv = normalizeToUnit(verts);
   const el = getEdgeLength(nv);
+  const edges = buildEdges(nv, el);
+  const oriented = orientFlatOnFace(nv, edges);
   return {
     group,
-    vertices: nv,
-    edges: buildEdges(nv, el),
+    vertices: oriented,
+    edges,
     numFaces
   };
 }
