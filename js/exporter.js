@@ -1,14 +1,8 @@
 import * as THREE from 'three';
 import { STLExporter } from 'three/addons/exporters/STLExporter.js';
 
-/**
- * Export geometry as binary STL and trigger download
- */
 export function exportSTL(geometry, filename) {
-  if (!geometry) {
-    alert('No hi ha geometria per exportar. Reconstrueix primer el sòlid.');
-    return;
-  }
+  if (!geometry) return;
 
   const exporter = new STLExporter();
   const mesh = new THREE.Mesh(geometry);

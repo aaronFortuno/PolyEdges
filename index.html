@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PolyEdges — Sòlids amb ranures per camins eulerins</title>
+  <title>PolyEdges — Sòlids amb ranures per camins eulerians</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="css/style.css">
   <script type="importmap">
@@ -17,70 +17,109 @@
 </head>
 <body>
   <aside id="sidebar">
-    <h1>PolyEdges</h1>
-    <p class="subtitle">Generador de sòlids amb ranures per explorar camins eulerins</p>
+    <h1 data-i18n="app.title">PolyEdges</h1>
+    <p class="subtitle" data-i18n="app.subtitle">Generador de sòlids amb ranures per explorar camins eulerians</p>
 
     <div class="control-group">
-      <label for="solidType">Tipus de sòlid</label>
+      <label for="solidType" data-i18n="label.solidType">Tipus de sòlid</label>
       <select id="solidType">
-        <option value="tetrahedron">Tetraedre (4V, 6A)</option>
-        <option value="cube" selected>Cub (8V, 12A)</option>
-        <option value="octahedron">Octaedre (6V, 12A)</option>
-        <option value="dodecahedron">Dodecaedre (20V, 30A)</option>
-        <option value="icosahedron">Icosaedre (12V, 30A)</option>
+        <optgroup data-i18n="group.platonic" label="Sòlids platònics">
+          <option value="tetrahedron" data-i18n="solid.tetrahedron" data-info="4V, 6E">Tetraedre (4V, 6E)</option>
+          <option value="cube" selected data-i18n="solid.cube" data-info="8V, 12E">Cub (8V, 12E)</option>
+          <option value="octahedron" data-i18n="solid.octahedron" data-info="6V, 12E">Octaedre (6V, 12E)</option>
+          <option value="dodecahedron" data-i18n="solid.dodecahedron" data-info="20V, 30E">Dodecaedre (20V, 30E)</option>
+          <option value="icosahedron" data-i18n="solid.icosahedron" data-info="12V, 30E">Icosaedre (12V, 30E)</option>
+        </optgroup>
+        <optgroup data-i18n="group.archimedean" label="Sòlids arquimedians">
+          <option value="truncatedTetrahedron" data-i18n="solid.truncatedTetrahedron" data-info="12V, 18E">Tetraedre truncat (12V, 18E)</option>
+          <option value="cuboctahedron" data-i18n="solid.cuboctahedron" data-info="12V, 24E">Cuboctaedre (12V, 24E)</option>
+          <option value="truncatedCube" data-i18n="solid.truncatedCube" data-info="24V, 36E">Cub truncat (24V, 36E)</option>
+          <option value="truncatedOctahedron" data-i18n="solid.truncatedOctahedron" data-info="24V, 36E">Octaedre truncat (24V, 36E)</option>
+          <option value="rhombicuboctahedron" data-i18n="solid.rhombicuboctahedron" data-info="24V, 48E">Rombicuboctaedre (24V, 48E)</option>
+          <option value="truncatedCuboctahedron" data-i18n="solid.truncatedCuboctahedron" data-info="48V, 72E">Cuboctaedre truncat (48V, 72E)</option>
+          <option value="snubCube" data-i18n="solid.snubCube" data-info="24V, 60E">Cub rom (24V, 60E)</option>
+          <option value="icosidodecahedron" data-i18n="solid.icosidodecahedron" data-info="30V, 60E">Icosidodecaedre (30V, 60E)</option>
+          <option value="truncatedDodecahedron" data-i18n="solid.truncatedDodecahedron" data-info="60V, 90E">Dodecaedre truncat (60V, 90E)</option>
+          <option value="truncatedIcosahedron" data-i18n="solid.truncatedIcosahedron" data-info="60V, 90E">Icosaedre truncat (60V, 90E)</option>
+          <option value="rhombicosidodecahedron" data-i18n="solid.rhombicosidodecahedron" data-info="60V, 120E">Rombicosidodecaedre (60V, 120E)</option>
+          <option value="truncatedIcosidodecahedron" data-i18n="solid.truncatedIcosidodecahedron" data-info="120V, 180E">Icosidodecaedre truncat (120V, 180E)</option>
+          <option value="snubDodecahedron" data-i18n="solid.snubDodecahedron" data-info="60V, 150E">Dodecaedre rom (60V, 150E)</option>
+        </optgroup>
       </select>
     </div>
 
     <div class="control-group">
-      <label for="size">Mida <span id="sizeVal">50</span> mm</label>
+      <label for="size" class="label-with-info">
+        <span><span data-i18n="label.size">Mida</span> <span id="sizeVal">50</span> mm</span>
+        <span id="cordLength" class="cord-length"></span>
+      </label>
       <input type="range" id="size" min="10" max="100" value="50" step="1">
     </div>
 
     <div class="control-group">
-      <label for="grooveDiameter">Diàmetre ranura <span id="grooveDiameterVal">3.0</span> mm</label>
+      <label for="grooveDiameter"><span data-i18n="label.grooveDiameter">Diàmetre ranura</span> <span id="grooveDiameterVal">3.0</span> mm</label>
       <input type="range" id="grooveDiameter" min="0" max="8" value="3" step="0.1">
     </div>
 
     <div class="control-group">
       <label>
-        <input type="checkbox" id="pinHole"> Forat inicial (xinxeta)
+        <input type="checkbox" id="pinHole"> <span data-i18n="label.pinHole">Forat inicial (xinxeta)</span>
       </label>
     </div>
 
     <div class="control-group">
       <label>
-        <input type="checkbox" id="wireframe"> Mostrar wireframe
+        <input type="checkbox" id="wireframe"> <span data-i18n="label.wireframe">Mostrar wireframe</span>
       </label>
     </div>
 
     <div class="control-group info-box" id="eulerInfo"></div>
 
-    <button id="exportBtn" class="btn-primary">Exportar STL</button>
+    <button id="exportBtn" class="btn-primary" data-i18n="btn.export">Exportar STL</button>
 
-    <div id="status" class="status">Inicialitzant...</div>
+    <div id="status" class="status" data-i18n="status.init">Inicialitzant...</div>
 
     <div class="version-footer">
-      <a id="changelogLink" class="changelog-link">v0.1.3</a>
+      <div class="footer-left">
+        <button id="langBtn" class="icon-btn" aria-label="Language">CA</button>
+        <div id="langMenu" class="lang-dropdown hidden">
+          <button data-lang="ca">Català</button>
+          <button data-lang="es">Español</button>
+          <button data-lang="eu">Euskara</button>
+          <button data-lang="gl">Galego</button>
+          <button data-lang="en">English</button>
+        </div>
+        <button id="themeBtn" class="icon-btn" aria-label="Toggle theme">&#9790;</button>
+      </div>
+      <a id="changelogLink" class="changelog-link">v0.2.0</a>
+      <button id="helpBtn" class="icon-btn help-btn" aria-label="Help">?</button>
     </div>
   </aside>
 
   <main id="canvas-container">
     <div id="spinner" class="spinner hidden">
       <div class="spinner-ring"></div>
-      <span>Calculant CSG...</span>
+      <span data-i18n="spinner.text">Calculant CSG...</span>
     </div>
     <canvas id="threeCanvas"></canvas>
   </main>
 
   <div id="changelogModal" class="modal hidden">
     <div class="modal-content">
-      <button id="changelogClose" class="modal-close">&times;</button>
-      <h2>Historial de canvis</h2>
+      <button class="modal-close" data-modal="changelogModal">&times;</button>
+      <h2 data-i18n="changelog.title">Historial de canvis</h2>
       <div class="modal-body">
+        <h3>v0.2.0</h3>
+        <ul>
+          <li>13 sòlids arquimedians</li>
+          <li>Internacionalització (ca, es, eu, gl, en)</li>
+          <li>Mode clar/fosc</li>
+          <li>Longitud de corda aproximada</li>
+        </ul>
         <h3>v0.1.3</h3>
         <ul>
           <li>Forat inicial per xinxeta (cilindre 1mm al vèrtex superior)</li>
-          <li>Eliminada opció de ranura recta (incompatible amb arestes no axis-aligned)</li>
+          <li>Eliminada opció de ranura recta</li>
           <li>Changelog en modal</li>
         </ul>
         <h3>v0.1.2</h3>
@@ -98,13 +137,29 @@
         <h3>v0.1.0</h3>
         <ul>
           <li>5 sòlids platònics amb preview 3D</li>
-          <li>Anàlisi de camins eulerins</li>
+          <li>Anàlisi de camins eulerians</li>
           <li>Export STL per impressió 3D</li>
         </ul>
       </div>
     </div>
   </div>
 
+  <div id="helpModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-modal="helpModal">&times;</button>
+      <h2 data-i18n="help.title">Sobre PolyEdges</h2>
+      <div class="modal-body" id="helpBody"></div>
+    </div>
+  </div>
+
+  <ln-tip-jar
+    ln-address="aptswim903@walletofsatoshi.com"
+    portfolio-url="https://aaronfortuno.github.io/portfolio"
+    portfolio-label="Veure més projectes"
+    hover-text="Em convides a un cafè? ☕"
+    button-position="right"
+  ></ln-tip-jar>
+  <script src="https://cdn.jsdelivr.net/npm/ln-tip-jar@latest/ln-tip-jar.js" defer></script>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

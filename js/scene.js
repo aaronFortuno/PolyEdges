@@ -233,3 +233,7 @@ export function setWireframe(enabled) {
 export function getCurrentGeometry() {
   return solidMesh ? solidMesh.geometry : null;
 }
+
+export function setBackgroundColor(color) {
+  if (renderer) renderer.setClearColor(color);
+}

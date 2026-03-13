@@ -3,6 +3,8 @@
 
 import * as THREE from 'three';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
+import { POLYHEDRA } from './polyhedra.js';
 
 let wasm = null;
 let ManifoldClass = null;
@@ -27,26 +29,37 @@ export async function initManifold() {
 
 function createBaseThreeGeometry(solidType, size) {
   let geom;
-  switch (solidType) {
-    case 'tetrahedron':
-      geom = new THREE.TetrahedronGeometry(size, 0);
-      break;
-    case 'cube': {
-      const side = size * 2 / Math.sqrt(3);
-      geom = new THREE.BoxGeometry(side, side, side);
-      break;
+  const poly = POLYHEDRA[solidType];
+
+  if (poly && poly.group === 'platonic') {
+    // Use Three.js built-in geometries for Platonic solids (cleaner meshes)
+    switch (solidType) {
+      case 'tetrahedron':
+        geom = new THREE.TetrahedronGeometry(size, 0);
+        break;
+      case 'cube': {
+        const side = size * 2 / Math.sqrt(3);
+        geom = new THREE.BoxGeometry(side, side, side);
+        break;
+      }
+      case 'octahedron':
+        geom = new THREE.OctahedronGeometry(size, 0);
+        break;
+      case 'dodecahedron':
+        geom = new THREE.DodecahedronGeometry(size, 0);
+        break;
+      case 'icosahedron':
+        geom = new THREE.IcosahedronGeometry(size, 0);
+        break;
     }
-    case 'octahedron':
-      geom = new THREE.OctahedronGeometry(size, 0);
-      break;
-    case 'dodecahedron':
-      geom = new THREE.DodecahedronGeometry(size, 0);
-      break;
-    case 'icosahedron':
-      geom = new THREE.IcosahedronGeometry(size, 0);
-      break;
-    default:
-      throw new Error(`Unknown solid type: ${solidType}`);
+  } else if (poly) {
+    // Archimedean solids: ConvexGeometry from vertex data
+    const points = poly.vertices.map(v =>
+      new THREE.Vector3(v[0] * size, v[1] * size, v[2] * size)
+    );
+    geom = new ConvexGeometry(points);
+  } else {
+    throw new Error(`Unknown solid type: ${solidType}`);
   }
 
   geom.deleteAttribute('normal');
