@@ -192,51 +192,50 @@ function buildCuttingShape(vertices, edges, radius, segments) {
 
 // --- Pin hole for thumbtack ---
 
-function buildPinHoles(vertices) {
+function buildSinglePin(v) {
   const RAD2DEG = 180 / Math.PI;
-  const PIN_RADIUS = 0.5;   // 1mm diameter
-  const PIN_LENGTH = 10;     // 10mm deep
-  const parts = [];
+  const PIN_RADIUS = 0.75;  // 1.5mm diameter
+  const PIN_LENGTH = 10;    // 10mm deep
 
+  // Direction from vertex toward center (0,0,0)
+  const dx = -v[0], dy = -v[1], dz = -v[2];
+  const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+  const nx = dx / len, ny = dy / len, nz = dz / len;
+
+  let pin = ManifoldClass.cylinder(PIN_LENGTH, PIN_RADIUS, PIN_RADIUS, 16, true);
+
+  const horiz = Math.sqrt(nx * nx + nz * nz);
+  let rx, ry;
+  if (horiz < 0.0001) {
+    rx = ny > 0 ? -90 : 90;
+    ry = 0;
+  } else {
+    rx = -Math.asin(ny) * RAD2DEG;
+    ry = Math.atan2(nx, nz) * RAD2DEG;
+  }
+
+  const rotated = pin.rotate([rx, ry, 0]);
+  pin.delete();
+
+  const mx = v[0] + nx * (PIN_LENGTH / 2);
+  const my = v[1] + ny * (PIN_LENGTH / 2);
+  const mz = v[2] + nz * (PIN_LENGTH / 2);
+
+  const translated = rotated.translate([mx, my, mz]);
+  rotated.delete();
+
+  return translated;
+}
+
+function subtractPinHoles(solid, vertices) {
+  let result = solid;
   for (const v of vertices) {
-    // Direction from vertex toward center (0,0,0)
-    const dx = -v[0], dy = -v[1], dz = -v[2];
-    const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
-    const nx = dx / len, ny = dy / len, nz = dz / len;
-
-    let pin = ManifoldClass.cylinder(PIN_LENGTH, PIN_RADIUS, PIN_RADIUS, 16, true);
-
-    const horiz = Math.sqrt(nx * nx + nz * nz);
-    let rx, ry;
-    if (horiz < 0.0001) {
-      rx = ny > 0 ? -90 : 90;
-      ry = 0;
-    } else {
-      rx = -Math.asin(ny) * RAD2DEG;
-      ry = Math.atan2(nx, nz) * RAD2DEG;
-    }
-
-    const rotated = pin.rotate([rx, ry, 0]);
-    pin.delete();
-
-    const mx = v[0] + nx * (PIN_LENGTH / 2);
-    const my = v[1] + ny * (PIN_LENGTH / 2);
-    const mz = v[2] + nz * (PIN_LENGTH / 2);
-
-    const translated = rotated.translate([mx, my, mz]);
-    rotated.delete();
-    parts.push(translated);
-  }
-
-  // Union all pin holes
-  let result = parts[0];
-  for (let k = 1; k < parts.length; k++) {
-    const merged = result.add(parts[k]);
+    const pin = buildSinglePin(v);
+    const next = result.subtract(pin);
     result.delete();
-    parts[k].delete();
-    result = merged;
+    pin.delete();
+    result = next;
   }
-
   return result;
 }
 
@@ -276,11 +275,7 @@ export function buildGroovedSolid(solidType, _edges, size, grooveRadius, grooveS
 
   // Subtract pin holes at all vertices
   if (pinHole) {
-    const pin = buildPinHoles(vertices);
-    const afterPin = result.subtract(pin);
-    result.delete();
-    pin.delete();
-    result = afterPin;
+    result = subtractPinHoles(result, vertices);
   }
 
   const resultGeom = manifoldToThreeGeom(result);
