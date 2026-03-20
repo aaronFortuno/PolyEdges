@@ -17,6 +17,7 @@ export function rebuildMesh(params) {
     params.size,
     grooveRadius,
     16,
-    params.pinHole
+    params.pinHole,
+    params.faceHollow || 0
   );
 }

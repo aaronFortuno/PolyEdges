@@ -27,6 +27,7 @@ function readParams() {
     solidType: $('solidType').value,
     size: parseFloat($('size').value),
     grooveDiameter: parseFloat($('grooveDiameter').value),
+    faceHollow: parseFloat($('faceHollow').value),
     pinHole: $('pinHole').checked
   };
 }
@@ -34,6 +35,20 @@ function readParams() {
 function updateSliderLabels() {
   $('sizeVal').textContent = $('size').value;
   $('grooveDiameterVal').textContent = parseFloat($('grooveDiameter').value).toFixed(1);
+
+  // Frame slider: update max = half edge length, snap 0→10
+  const edgeMM = parseFloat($('size').value);
+  const frameSlider = $('faceHollow');
+  frameSlider.max = Math.round(edgeMM / 2);
+  let frameVal = parseFloat(frameSlider.value);
+
+  // Snap: values between 0 and 10 jump to either 0 or 10
+  if (frameVal > 0 && frameVal < 10) frameVal = 10;
+  if (frameVal > parseFloat(frameSlider.max)) frameVal = parseFloat(frameSlider.max);
+  frameSlider.value = frameVal;
+
+  $('faceHollowVal').textContent = frameVal > 0 ? `${frameVal.toFixed(1)} mm` : 'OFF';
+
   updateSizeInfo();
 }
 
@@ -83,7 +98,7 @@ async function rebuild() {
     const { geometry, edges, baseGeometry } = rebuildMesh(params);
     const grooveRadius = params.grooveDiameter / 2;
     updateMesh(geometry, edges, baseGeometry, grooveRadius, 16);
-    setStatus(t('status.result', { solidType: params.solidType, size: params.size }));
+    setStatus('');
   } catch (err) {
     console.error('Error building solid:', err);
     setStatus(t('status.buildError', { message: err.message }));
@@ -189,14 +204,14 @@ async function init() {
     // Controls
     $('solidType').addEventListener('change', () => {
       updateEulerInfo();
-      updateSizeInfo();
+      updateSliderLabels();
       scheduleRebuild();
       setTimeout(resetCamera, 300);
     });
 
     $('pinHole').addEventListener('change', scheduleRebuild);
 
-    ['size', 'grooveDiameter'].forEach(id => {
+    ['size', 'grooveDiameter', 'faceHollow'].forEach(id => {
       $(id).addEventListener('input', () => {
         updateSliderLabels();
         scheduleRebuild();

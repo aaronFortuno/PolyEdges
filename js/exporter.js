@@ -5,11 +5,20 @@ export function exportSTL(geometry, filename) {
   if (!geometry) return;
 
   const exporter = new STLExporter();
-  const mesh = new THREE.Mesh(geometry);
+
   // Convert Y-up (Three.js) to Z-up (STL/slicer convention)
-  mesh.rotation.x = -Math.PI / 2;
+  // and ensure the solid sits on the build plate (min Z = 0)
+  const geomClone = geometry.clone();
+  const rotMatrix = new THREE.Matrix4().makeRotationX(-Math.PI / 2);
+  geomClone.applyMatrix4(rotMatrix);
+  geomClone.computeBoundingBox();
+  const minZ = geomClone.boundingBox.min.z;
+  geomClone.translate(0, 0, -minZ);
+
+  const mesh = new THREE.Mesh(geomClone);
   mesh.updateMatrixWorld(true);
   const buffer = exporter.parse(mesh, { binary: true });
+  geomClone.dispose();
 
   const blob = new Blob([buffer], { type: 'application/octet-stream' });
   const url = URL.createObjectURL(blob);

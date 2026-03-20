@@ -241,6 +241,80 @@ function orientFlatOnFace(vertices, edges) {
   });
 }
 
+// --- Face detection: returns ordered vertex indices for each face ---
+
+function detectFaces(vertices, edges) {
+  const adj = vertices.map(() => []);
+  for (const [i, j] of edges) {
+    adj[i].push(j);
+    adj[j].push(i);
+  }
+
+  const faceNormals = [];
+  const seen = new Set();
+
+  for (let v = 0; v < vertices.length; v++) {
+    const vert = vertices[v];
+    const nbrs = adj[v];
+    for (let i = 0; i < nbrs.length; i++) {
+      for (let j = i + 1; j < nbrs.length; j++) {
+        const vi = vertices[nbrs[i]], vj = vertices[nbrs[j]];
+        const e1 = [vi[0]-vert[0], vi[1]-vert[1], vi[2]-vert[2]];
+        const e2 = [vj[0]-vert[0], vj[1]-vert[1], vj[2]-vert[2]];
+        let n = vecCross(e1, e2);
+        const len = Math.sqrt(vecDot(n, n));
+        if (len < 1e-10) continue;
+        n = [n[0]/len, n[1]/len, n[2]/len];
+        if (vecDot(n, vert) < 0) n = [-n[0], -n[1], -n[2]];
+
+        const projections = vertices.map(p => vecDot(p, n));
+        const maxProj = Math.max(...projections);
+        const supportIndices = [];
+        for (let k = 0; k < vertices.length; k++) {
+          if (Math.abs(projections[k] - maxProj) < 0.001) supportIndices.push(k);
+        }
+
+        if (supportIndices.length >= 3) {
+          const key = n.map(x => Math.round(x * 10000)).join(',');
+          if (!seen.has(key)) {
+            seen.add(key);
+
+            // Order vertices around face center by angle
+            const center = [0, 0, 0];
+            for (const idx of supportIndices) {
+              center[0] += vertices[idx][0];
+              center[1] += vertices[idx][1];
+              center[2] += vertices[idx][2];
+            }
+            center[0] /= supportIndices.length;
+            center[1] /= supportIndices.length;
+            center[2] /= supportIndices.length;
+
+            // Build local 2D axes on the face plane
+            const refVec = [vertices[supportIndices[0]][0] - center[0],
+                           vertices[supportIndices[0]][1] - center[1],
+                           vertices[supportIndices[0]][2] - center[2]];
+            const axisU = vecNorm(refVec);
+            const axisV = vecNorm(vecCross(n, axisU));
+
+            supportIndices.sort((a, b) => {
+              const da = [vertices[a][0]-center[0], vertices[a][1]-center[1], vertices[a][2]-center[2]];
+              const db = [vertices[b][0]-center[0], vertices[b][1]-center[1], vertices[b][2]-center[2]];
+              const angA = Math.atan2(vecDot(da, axisV), vecDot(da, axisU));
+              const angB = Math.atan2(vecDot(db, axisV), vecDot(db, axisU));
+              return angA - angB;
+            });
+
+            faceNormals.push({ normal: n, vertices: supportIndices, center });
+          }
+        }
+      }
+    }
+  }
+
+  return faceNormals;
+}
+
 function makeSolid(verts, numFaces, group) {
   const nv = normalizeToUnit(verts);
   const el = getEdgeLength(nv);
@@ -256,13 +330,24 @@ function makeSolid(verts, numFaces, group) {
     }
   }
 
+  const faces = detectFaces(oriented, edges);
+
+  // Inradius = min distance from center to any face (at unit circumradius scale)
+  let inradius = Infinity;
+  for (const face of faces) {
+    const dist = Math.abs(vecDot(face.center, face.normal));
+    if (dist < inradius) inradius = dist;
+  }
+
   return {
     group,
     vertices: oriented,
     edges,
+    faces,
     numFaces,
-    edgeLength: el,  // edge length at unit circumradius
-    maxSpan           // max vertex-to-vertex distance at unit circumradius
+    edgeLength: el,
+    maxSpan,
+    inradius
   };
 }
 
@@ -402,6 +487,12 @@ export function getBoundingDiameter(polyKey, size) {
   if (!poly) return 0;
   // Scale from normalized coords: size = edge length → scale = size / edgeLength
   return poly.maxSpan * (size / poly.edgeLength);
+}
+
+export function getInradius(polyKey, size) {
+  const poly = POLYHEDRA[polyKey];
+  if (!poly) return 0;
+  return poly.inradius * (size / poly.edgeLength);
 }
 
 // --- Graph path analysis (Euler & Hamilton) ---

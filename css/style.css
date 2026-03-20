@@ -49,13 +49,28 @@ body {
 #sidebar {
   width: 320px;
   min-width: 320px;
-  padding: 24px;
   background: var(--bg-sidebar);
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
   border-right: 1px solid var(--border-color);
+}
+
+.sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebar-footer {
+  flex-shrink: 0;
+  padding: 12px 24px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 h1 {
@@ -79,32 +94,13 @@ h1 {
 label {
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--text-secondary);
-}
-
-label span {
-  color: var(--accent);
-  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .slider-info {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.size-details {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
-}
-
-.cord-length {
+  gap: 12px;
   font-size: 0.7rem;
-  font-weight: 400;
   color: var(--accent-success);
 }
 
@@ -134,10 +130,16 @@ select optgroup {
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
+  width: 100%;
+  height: 18px;
+  background: transparent;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
   height: 6px;
   background: var(--bg-input);
   border-radius: 3px;
-  outline: none;
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -146,6 +148,23 @@ input[type="range"]::-webkit-slider-thumb {
   height: 18px;
   background: var(--accent);
   border-radius: 50%;
+  cursor: pointer;
+  margin-top: -6px;
+}
+
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  background: var(--bg-input);
+  border-radius: 3px;
+  border: none;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--accent);
+  border-radius: 50%;
+  border: none;
   cursor: pointer;
 }
 
@@ -157,10 +176,22 @@ input[type="checkbox"] {
   margin-right: 8px;
 }
 
+.euler-details summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding: 4px 0;
+}
+
+.euler-details summary:hover {
+  color: var(--text-primary);
+}
+
 .info-box {
   background: var(--bg-input);
   border-radius: 8px;
   padding: 10px;
+  margin-top: 6px;
   font-size: 0.75rem;
   line-height: 1.4;
   border-left: 3px solid var(--accent);
@@ -217,14 +248,7 @@ input[type="checkbox"] {
 
 /* --- Footer --- */
 
-.version-footer {
-  margin-top: auto;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+/* .version-footer replaced by .sidebar-footer in #sidebar */
 
 .footer-left {
   display: flex;

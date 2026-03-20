@@ -239,24 +239,42 @@ function subtractPinHoles(solid, vertices) {
   return result;
 }
 
+// --- Face hollowing: cut polygonal holes through each face ---
+
+function buildFrameByIntersection(solid, vertices, edges, frameRadius, segments) {
+  // Build thickened skeleton: union of cylinders (edges) + spheres (vertices)
+  // Same logic as buildCuttingShape but used for intersection, not subtraction
+  const skeleton = buildCuttingShape(vertices, edges, frameRadius, segments);
+
+  // Frame = intersection of original solid with thickened skeleton
+  // This clips the round cylinders to the polyhedron's flat faces
+  try {
+    const frame = solid.intersect(skeleton);
+    solid.delete();
+    skeleton.delete();
+    return frame;
+  } catch (e) {
+    console.warn('Failed to intersect solid with skeleton:', e);
+    skeleton.delete();
+    return solid;
+  }
+}
+
 // --- Public API ---
 
 /**
  * Build the grooved solid.
  * Returns { geometry, edges, baseGeometry }
- * - geometry: the CSG result (or base solid if grooveRadius=0)
- * - edges: real polyhedron edge pairs [i,j]
- * - baseGeometry: ungrooved solid (for wireframe overlay reference)
  */
-export function buildGroovedSolid(solidType, _edges, size, grooveRadius, grooveSegments, pinHole = false) {
+export function buildGroovedSolid(solidType, _edges, size, grooveRadius, grooveSegments, pinHole = false, faceHollow = 0) {
   const baseGeom = createBaseThreeGeometry(solidType, size);
   const vertices = getVertices(baseGeom);
   const edges = detectEdges(vertices);
 
-  console.log(`${solidType}: ${vertices.length} verts, ${edges.length} edges, radius=${grooveRadius}`);
+  console.log(`${solidType}: ${vertices.length} verts, ${edges.length} edges, radius=${grooveRadius}, hollow=${faceHollow}`);
 
-  // No grooves and no pin hole: return base solid
-  if (grooveRadius <= 0 && !pinHole) {
+  // No CSG needed: return base solid
+  if (grooveRadius <= 0 && !pinHole && faceHollow <= 0) {
     baseGeom.computeVertexNormals();
     return { geometry: baseGeom, edges, baseGeometry: baseGeom };
   }
@@ -271,6 +289,11 @@ export function buildGroovedSolid(solidType, _edges, size, grooveRadius, grooveS
     result.delete();
     cutter.delete();
     result = afterGrooves;
+  }
+
+  // Frame mode: intersect solid with thickened skeleton (uniform edge thickness)
+  if (faceHollow > 0) {
+    result = buildFrameByIntersection(result, vertices, edges, faceHollow, grooveSegments);
   }
 
   // Subtract pin holes at all vertices

@@ -3,9 +3,10 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 let renderer, scene, camera, controls;
 let solidMesh = null;
+let solidEdgeLines = null;
 let grooveGroup = null;
 let edgeLines = null;
-let material, edgeMaterial, grooveMaterial;
+let material, edgeMaterial, grooveMaterial, solidEdgeMaterial;
 let showingWireframe = false;
 let cameraInitialized = false;
 
@@ -24,7 +25,7 @@ export function initScene(canvas) {
 
   scene = new THREE.Scene();
 
-  camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+  camera = new THREE.PerspectiveCamera(45, 1, 0.1, 10000);
   camera.position.set(0, 0, 4);
 
   controls = new OrbitControls(camera, canvas);
@@ -48,7 +49,8 @@ export function initScene(canvas) {
 
   material = new THREE.MeshPhysicalMaterial({
     color: 0x4ecdc4, metalness: 0.05, roughness: 0.4,
-    clearcoat: 0.3, clearcoatRoughness: 0.2, side: THREE.FrontSide
+    clearcoat: 0.3, clearcoatRoughness: 0.2, side: THREE.FrontSide,
+    flatShading: true
   });
 
   grooveMaterial = new THREE.MeshPhysicalMaterial({
@@ -56,6 +58,7 @@ export function initScene(canvas) {
   });
 
   edgeMaterial = new THREE.LineBasicMaterial({ color: 0x4ecdc4 });
+  solidEdgeMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.15 });
 
   handleResize();
   window.addEventListener('resize', handleResize);
@@ -101,6 +104,7 @@ export function resetCamera() {
 
 function clearSolid() {
   if (solidMesh) { scene.remove(solidMesh); solidMesh.geometry.dispose(); solidMesh = null; }
+  if (solidEdgeLines) { scene.remove(solidEdgeLines); solidEdgeLines.geometry.dispose(); solidEdgeLines = null; }
 }
 
 function clearGrooveGroup() {
@@ -196,8 +200,14 @@ export function updateMesh(groovedGeometry, realEdges, baseGeometry, grooveRadiu
   solidMesh = new THREE.Mesh(groovedGeometry, material);
   scene.add(solidMesh);
 
+  // Edge outline for better face visibility
+  const edgesGeom = new THREE.EdgesGeometry(groovedGeometry, 1);
+  solidEdgeLines = new THREE.LineSegments(edgesGeom, solidEdgeMaterial);
+  scene.add(solidEdgeLines);
+
   if (showingWireframe) {
     solidMesh.visible = false;
+    solidEdgeLines.visible = false;
     showWireframeObjects();
   }
 
@@ -225,6 +235,7 @@ function showWireframeObjects() {
 export function setWireframe(enabled) {
   showingWireframe = enabled;
   if (solidMesh) solidMesh.visible = !enabled;
+  if (solidEdgeLines) solidEdgeLines.visible = !enabled;
   clearGrooveGroup();
   clearEdgeLines();
   if (enabled) showWireframeObjects();

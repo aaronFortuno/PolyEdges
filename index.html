@@ -17,73 +17,83 @@
 </head>
 <body>
   <aside id="sidebar">
-    <h1 data-i18n="app.title">PolyEdges</h1>
-    <p class="subtitle" data-i18n="app.subtitle">Generador de sòlids amb ranures per explorar camins d'Euler i Hamilton</p>
+    <div class="sidebar-scroll">
+      <h1 data-i18n="app.title">PolyEdges</h1>
+      <p class="subtitle" data-i18n="app.subtitle">Generador de sòlids amb ranures per explorar camins d'Euler i Hamilton</p>
 
-    <div class="control-group">
-      <label for="solidType" data-i18n="label.solidType">Tipus de sòlid</label>
-      <select id="solidType">
-        <optgroup data-i18n="group.platonic" label="Sòlids platònics">
-          <option value="tetrahedron" data-i18n="solid.tetrahedron" data-info="4V, 6E">Tetraedre (4V, 6E)</option>
-          <option value="cube" selected data-i18n="solid.cube" data-info="8V, 12E">Cub (8V, 12E)</option>
-          <option value="octahedron" data-i18n="solid.octahedron" data-info="6V, 12E">Octaedre (6V, 12E)</option>
-          <option value="dodecahedron" data-i18n="solid.dodecahedron" data-info="20V, 30E">Dodecaedre (20V, 30E)</option>
-          <option value="icosahedron" data-i18n="solid.icosahedron" data-info="12V, 30E">Icosaedre (12V, 30E)</option>
-        </optgroup>
-        <optgroup data-i18n="group.archimedean" label="Sòlids arquimedians">
-          <option value="truncatedTetrahedron" data-i18n="solid.truncatedTetrahedron" data-info="12V, 18E">Tetraedre truncat (12V, 18E)</option>
-          <option value="cuboctahedron" data-i18n="solid.cuboctahedron" data-info="12V, 24E">Cuboctaedre (12V, 24E)</option>
-          <option value="truncatedCube" data-i18n="solid.truncatedCube" data-info="24V, 36E">Cub truncat (24V, 36E)</option>
-          <option value="truncatedOctahedron" data-i18n="solid.truncatedOctahedron" data-info="24V, 36E">Octaedre truncat (24V, 36E)</option>
-          <option value="rhombicuboctahedron" data-i18n="solid.rhombicuboctahedron" data-info="24V, 48E">Rombicuboctaedre (24V, 48E)</option>
-          <option value="truncatedCuboctahedron" data-i18n="solid.truncatedCuboctahedron" data-info="48V, 72E">Cuboctaedre truncat (48V, 72E)</option>
-          <option value="snubCube" data-i18n="solid.snubCube" data-info="24V, 60E">Cub rom (24V, 60E)</option>
-          <option value="icosidodecahedron" data-i18n="solid.icosidodecahedron" data-info="30V, 60E">Icosidodecaedre (30V, 60E)</option>
-          <option value="truncatedDodecahedron" data-i18n="solid.truncatedDodecahedron" data-info="60V, 90E">Dodecaedre truncat (60V, 90E)</option>
-          <option value="truncatedIcosahedron" data-i18n="solid.truncatedIcosahedron" data-info="60V, 90E">Icosaedre truncat (60V, 90E)</option>
-          <option value="rhombicosidodecahedron" data-i18n="solid.rhombicosidodecahedron" data-info="60V, 120E">Rombicosidodecaedre (60V, 120E)</option>
-          <option value="truncatedIcosidodecahedron" data-i18n="solid.truncatedIcosidodecahedron" data-info="120V, 180E">Icosidodecaedre truncat (120V, 180E)</option>
-          <option value="snubDodecahedron" data-i18n="solid.snubDodecahedron" data-info="60V, 150E">Dodecaedre rom (60V, 150E)</option>
-        </optgroup>
-      </select>
-    </div>
+      <div class="control-group">
+        <label for="solidType" data-i18n="label.solidType">Tipus de sòlid</label>
+        <select id="solidType">
+          <optgroup data-i18n="group.platonic" label="Sòlids platònics">
+            <option value="tetrahedron" data-i18n="solid.tetrahedron" data-info="4V, 6E">Tetraedre (4V, 6E)</option>
+            <option value="cube" selected data-i18n="solid.cube" data-info="8V, 12E">Cub (8V, 12E)</option>
+            <option value="octahedron" data-i18n="solid.octahedron" data-info="6V, 12E">Octaedre (6V, 12E)</option>
+            <option value="dodecahedron" data-i18n="solid.dodecahedron" data-info="20V, 30E">Dodecaedre (20V, 30E)</option>
+            <option value="icosahedron" data-i18n="solid.icosahedron" data-info="12V, 30E">Icosaedre (12V, 30E)</option>
+          </optgroup>
+          <optgroup data-i18n="group.archimedean" label="Sòlids arquimedians">
+            <option value="truncatedTetrahedron" data-i18n="solid.truncatedTetrahedron" data-info="12V, 18E">Tetraedre truncat (12V, 18E)</option>
+            <option value="cuboctahedron" data-i18n="solid.cuboctahedron" data-info="12V, 24E">Cuboctaedre (12V, 24E)</option>
+            <option value="truncatedCube" data-i18n="solid.truncatedCube" data-info="24V, 36E">Cub truncat (24V, 36E)</option>
+            <option value="truncatedOctahedron" data-i18n="solid.truncatedOctahedron" data-info="24V, 36E">Octaedre truncat (24V, 36E)</option>
+            <option value="rhombicuboctahedron" data-i18n="solid.rhombicuboctahedron" data-info="24V, 48E">Rombicuboctaedre (24V, 48E)</option>
+            <option value="truncatedCuboctahedron" data-i18n="solid.truncatedCuboctahedron" data-info="48V, 72E">Cuboctaedre truncat (48V, 72E)</option>
+            <option value="snubCube" data-i18n="solid.snubCube" data-info="24V, 60E">Cub rom (24V, 60E)</option>
+            <option value="icosidodecahedron" data-i18n="solid.icosidodecahedron" data-info="30V, 60E">Icosidodecaedre (30V, 60E)</option>
+            <option value="truncatedDodecahedron" data-i18n="solid.truncatedDodecahedron" data-info="60V, 90E">Dodecaedre truncat (60V, 90E)</option>
+            <option value="truncatedIcosahedron" data-i18n="solid.truncatedIcosahedron" data-info="60V, 90E">Icosaedre truncat (60V, 90E)</option>
+            <option value="rhombicosidodecahedron" data-i18n="solid.rhombicosidodecahedron" data-info="60V, 120E">Rombicosidodecaedre (60V, 120E)</option>
+            <option value="truncatedIcosidodecahedron" data-i18n="solid.truncatedIcosidodecahedron" data-info="120V, 180E">Icosidodecaedre truncat (120V, 180E)</option>
+            <option value="snubDodecahedron" data-i18n="solid.snubDodecahedron" data-info="60V, 150E">Dodecaedre rom (60V, 150E)</option>
+          </optgroup>
+        </select>
+      </div>
 
-    <div class="control-group">
-      <label for="size" data-i18n="label.edgeLength">Longitud aresta</label>
-      <div class="slider-info">
-        <span><span id="sizeVal">50</span> mm</span>
-        <span class="size-details">
+      <div class="control-group">
+        <label for="size">
+          <span data-i18n="label.edgeLength">Longitud aresta</span> <span id="sizeVal">50</span> mm
+        </label>
+        <div class="slider-info">
           <span id="cordLength" class="cord-length"></span>
           <span id="boundingSize" class="cord-length"></span>
-        </span>
+        </div>
+        <input type="range" id="size" min="10" max="100" value="50" step="1">
       </div>
-      <input type="range" id="size" min="10" max="100" value="50" step="1">
+
+      <div class="control-group">
+        <label for="grooveDiameter"><span data-i18n="label.grooveDiameter">Diàmetre ranura</span> <span id="grooveDiameterVal">3.0</span> mm</label>
+        <input type="range" id="grooveDiameter" min="0" max="8" value="3" step="0.1">
+      </div>
+
+      <div class="control-group">
+        <label for="faceHollow"><span data-i18n="label.faceHollow">Gruix marc</span> <span id="faceHollowVal">OFF</span></label>
+        <input type="range" id="faceHollow" min="0" max="25" value="0" step="0.5" list="frameStops">
+        <datalist id="frameStops"><option value="0"><option value="10"></datalist>
+      </div>
+
+      <div class="control-group">
+        <label>
+          <input type="checkbox" id="pinHole"> <span data-i18n="label.pinHole">Vèrtexs foradats (1,5 mm Ø)</span>
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label>
+          <input type="checkbox" id="wireframe"> <span data-i18n="label.wireframe">Mostrar wireframe</span>
+        </label>
+      </div>
+
+      <details class="euler-details">
+        <summary data-i18n="euler.header">Anàlisi del graf</summary>
+        <div class="info-box" id="eulerInfo"></div>
+      </details>
+
+      <button id="exportBtn" class="btn-primary" data-i18n="btn.export">Exportar STL</button>
+
+      <div id="status" class="status" data-i18n="status.init">Inicialitzant...</div>
     </div>
 
-    <div class="control-group">
-      <label for="grooveDiameter"><span data-i18n="label.grooveDiameter">Diàmetre ranura</span> <span id="grooveDiameterVal">3.0</span> mm</label>
-      <input type="range" id="grooveDiameter" min="0" max="8" value="3" step="0.1">
-    </div>
-
-    <div class="control-group">
-      <label>
-        <input type="checkbox" id="pinHole"> <span data-i18n="label.pinHole">Vèrtexs foradats (1,5 mm Ø)</span>
-      </label>
-    </div>
-
-    <div class="control-group">
-      <label>
-        <input type="checkbox" id="wireframe"> <span data-i18n="label.wireframe">Mostrar wireframe</span>
-      </label>
-    </div>
-
-    <div class="control-group info-box" id="eulerInfo"></div>
-
-    <button id="exportBtn" class="btn-primary" data-i18n="btn.export">Exportar STL</button>
-
-    <div id="status" class="status" data-i18n="status.init">Inicialitzant...</div>
-
-    <div class="version-footer">
+    <div class="sidebar-footer">
       <div class="footer-left">
         <button id="langBtn" class="icon-btn" aria-label="Language">CA</button>
         <div id="langMenu" class="lang-dropdown hidden">
@@ -95,7 +105,7 @@
         </div>
         <button id="themeBtn" class="icon-btn" aria-label="Toggle theme">&#9790;</button>
       </div>
-      <a id="changelogLink" class="changelog-link">v0.2.2</a>
+      <a id="changelogLink" class="changelog-link">v0.3.0</a>
       <button id="helpBtn" class="icon-btn help-btn" aria-label="Help">?</button>
     </div>
   </aside>
@@ -113,6 +123,14 @@
       <button class="modal-close" data-modal="changelogModal">&times;</button>
       <h2 data-i18n="changelog.title">Historial de canvis</h2>
       <div class="modal-body">
+        <h3>v0.3.0</h3>
+        <ul>
+          <li>Mode marc: intersecció sòlid × esquelet (gruix uniforme a totes les arestes)</li>
+          <li>Forats a tots els vèrtexs (1,5 mm Ø) per xinxetes/pals, estil joc Icosià</li>
+          <li>Fix STL tetraedre: sòlid sempre assentat al llit d'impressió</li>
+          <li>Flat shading + contorns d'arestes al visor 3D</li>
+          <li>Layout sidebar: footer ancorat, info Euler col·lapsable</li>
+        </ul>
         <h3>v0.2.2</h3>
         <ul>
           <li>Slider «Longitud aresta» en mm (abans circumradi)</li>
